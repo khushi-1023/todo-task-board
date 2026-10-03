@@ -37,8 +37,22 @@ type TaskStore = {
   updateTaskStatus: (id: string, status: TaskStatus) => void;
 };
 
+const getStoredTasks = (): Task[] => {
+  const storedTasks = localStorage.getItem("tasks");
+
+  if (!storedTasks) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(storedTasks);
+  } catch {
+    return [];
+  }
+};
+
 export const useTaskStore = create<TaskStore>((set) => ({
-  tasks: [],
+  tasks: getStoredTasks(),
 
   addTask: (title, description, status, userId) => {
     const newTask: Task = {
@@ -50,14 +64,20 @@ export const useTaskStore = create<TaskStore>((set) => ({
       createdAt: new Date().toISOString(),
     };
 
-    set((state) => ({
-      tasks: [...state.tasks, newTask],
-    }));
+    set((state) => {
+      const updatedTasks = [...state.tasks, newTask];
+
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+      return {
+        tasks: updatedTasks,
+      };
+    });
   },
 
   updateTask: (id, title, description, status) => {
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
+    set((state) => {
+      const updatedTasks = state.tasks.map((task) =>
         task.id === id
           ? {
               ...task,
@@ -66,26 +86,46 @@ export const useTaskStore = create<TaskStore>((set) => ({
               status,
             }
           : task
-      ),
-    }));
+      );
+
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+      return {
+        tasks: updatedTasks,
+      };
+    });
   },
 
   deleteTask: (id) => {
-    set((state) => ({
-      tasks: state.tasks.filter((task) => task.id !== id),
-    }));
+    set((state) => {
+      const updatedTasks = state.tasks.filter(
+        (task) => task.id !== id
+      );
+
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+      return {
+        tasks: updatedTasks,
+      };
+    });
   },
 
   updateTaskStatus: (id, status) => {
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
+    set((state) => {
+      const updatedTasks = state.tasks.map((task) =>
         task.id === id
           ? {
               ...task,
               status,
             }
           : task
-      ),
-    }));
+      );
+
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+      return {
+        tasks: updatedTasks,
+      };
+    });
   },
 }));

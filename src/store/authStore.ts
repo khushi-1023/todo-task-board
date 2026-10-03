@@ -18,25 +18,15 @@ export const useAuthStore = create<AuthState>((set) => {
   const storedUser = localStorage.getItem("user");
   const storedAuth = localStorage.getItem("isAuthenticated");
 
-  let user: User | null = null;
-
-  if (storedUser) {
-    try {
-      user = JSON.parse(storedUser);
-    } catch {
-      user = null;
-    }
-  }
-
   return {
-    user: storedAuth === "true" ? user : null,
+    user: storedUser ? JSON.parse(storedUser) : null,
     isAuthenticated: storedAuth === "true",
 
-    registerUser: (newUser) => {
-      localStorage.setItem("user", JSON.stringify(newUser));
+    registerUser: (user) => {
+      localStorage.setItem("user", JSON.stringify(user));
 
       set({
-        user: newUser,
+        user,
         isAuthenticated: false,
       });
     },
